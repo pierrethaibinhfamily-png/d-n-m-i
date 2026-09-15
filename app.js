@@ -21,13 +21,70 @@ const guidesProcessPages = Array.from(document.querySelectorAll('[data-guides-pa
 const guidesPagePrevious = document.querySelector('[data-guides-page-prev]');
 const guidesPageNext = document.querySelector('[data-guides-page-next]');
 const guidesPageCurrent = document.querySelector('[data-guides-page-current]');
-let currentScreen = 'cover';
+const privacyLock = document.querySelector('#privacy-lock');
+const privacyLockForm = document.querySelector('#privacy-lock-form');
+const privacyLockCode = document.querySelector('#privacy-lock-code');
+const privacyLockFeedback = document.querySelector('#privacy-lock-feedback');
+const lockableContent = Array.from(document.querySelectorAll('[data-lockable-content]'));let currentScreen = 'cover';
 let fullscreenRequestPending = false;
 let activeProductDetailCard = null;
 let activeGuidesPage = 0;
 let isRouteMapLandingOpen = false;
 let mapReturnTab = 'company';
 
+const PRIVACY_LOCK_SESSION_KEY = 'onbird-tour-plan-view-unlocked';
+
+function getPrivacyLockSession() {
+  try {
+    return window.sessionStorage.getItem(PRIVACY_LOCK_SESSION_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function setPrivacyLockSession() {
+  try {
+    window.sessionStorage.setItem(PRIVACY_LOCK_SESSION_KEY, 'true');
+  } catch {
+    // The page remains usable when browser storage is unavailable.
+  }
+}
+
+function setPrivacyLock(isLocked) {
+  if (!privacyLock) return;
+
+  privacyLock.hidden = !isLocked;
+  document.body.classList.toggle('is-content-locked', isLocked);
+  lockableContent.forEach((element) => {
+    element.inert = isLocked;
+  });
+
+  if (isLocked) {
+    window.requestAnimationFrame(() => privacyLockCode?.focus());
+  }
+}
+
+function initialisePrivacyLock() {
+  if (!privacyLock || !privacyLockForm || !privacyLockCode || !privacyLockFeedback) return;
+
+  setPrivacyLock(!getPrivacyLockSession());
+
+  privacyLockForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    if (privacyLockCode.value.trim() !== '1234') {
+      privacyLockFeedback.textContent = 'Mã chưa đúng. Hãy thử lại.';
+      privacyLockCode.select();
+      return;
+    }
+
+    setPrivacyLockSession();
+    privacyLockFeedback.textContent = '';
+    privacyLockCode.value = '';
+    setPrivacyLock(false);
+    entryHero?.focus({ preventScroll: true });
+  });
+}
 function isPresentationDesktop() {
   return window.matchMedia('(min-width: 821px)').matches;
 }
@@ -494,6 +551,7 @@ document.addEventListener('fullscreenchange', () => {
 
 bindHeroEntry(entryHero, 'capability');
 bindHeroEntry(capabilityHero, 'plan');
+initialisePrivacyLock();
 
 returnToCoverButton.addEventListener('click', () => {
   showScreen(currentScreen === 'plan' ? 'capability' : 'cover');

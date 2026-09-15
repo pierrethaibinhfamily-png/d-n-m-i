@@ -11,9 +11,43 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Đi tới nội dung chính</a>
+    <section
+      class="privacy-lock"
+      id="privacy-lock"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="privacy-lock-title"
+      aria-describedby="privacy-lock-description"
+      hidden
+    >
+      <div class="privacy-lock__panel">
+        <span class="privacy-lock__icon" aria-hidden="true">⌁</span>
+        <p class="privacy-lock__eyebrow">ONBIRD · INTERNAL VIEW</p>
+        <h1 id="privacy-lock-title">Nội dung nội bộ</h1>
+        <p id="privacy-lock-description">Nhập mã để mở bản kế hoạch cuộc họp.</p>
+        <form class="privacy-lock__form" id="privacy-lock-form" novalidate>
+          <label for="privacy-lock-code">Mã truy cập</label>
+          <div class="privacy-lock__controls">
+            <input
+              id="privacy-lock-code"
+              name="access-code"
+              type="password"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="4"
+              autocomplete="one-time-code"
+              aria-describedby="privacy-lock-feedback"
+              required
+            />
+            <button type="submit">Mở nội dung</button>
+          </div>
+          <p class="privacy-lock__feedback" id="privacy-lock-feedback" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+    <a class="skip-link" href="#main-content" data-lockable-content>Đi tới nội dung chính</a>
 
-    <header class="site-header">
+    <header class="site-header" data-lockable-content>
       <div class="header-inner">
         <div class="brand-lockup">
           <img
@@ -42,7 +76,7 @@
       </div>
     </header>
 
-    <main id="main-content">
+    <main id="main-content" data-lockable-content>
       <button class="company-deck-fullscreen-exit" type="button" data-company-fullscreen-exit hidden>
         <span aria-hidden="true" data-company-fullscreen-icon>→</span>
         <span data-company-fullscreen-label>Next page</span>
@@ -817,7 +851,7 @@
       </section>
     </main>
 
-    <footer class="site-footer" id="plan-footer" hidden>
+    <footer class="site-footer" id="plan-footer" data-lockable-content hidden>
       <span>OnBird Phu Quoc · Internal product development</span>
       <span>Discussion draft · Not for public distribution</span>
     </footer>
